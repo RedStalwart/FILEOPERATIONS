@@ -1,0 +1,33 @@
+#include <stdio.h>
+
+int main()
+{
+	FILE* fd = NULL;
+	wchar_t mytext[1024];
+	int i = 0;
+	while (i<1024)
+	{
+		mytext[i] = 0;
+		i++;
+	}
+	fread(&mytext, sizeof(char),sizeof(mytext),stdin);	
+	fd = fopen("inputtext.txt", "wb+");
+	fwrite(&mytext,sizeof(char),sizeof(mytext),fd);
+	fclose(fd);
+	fflush(stdin);		
+	fd = fopen("inputtext.txt", "rb+");
+	wchar_t outtext[1024];
+	while (i<1024)
+	{
+		outtext[i] = 0;
+		i++;
+	}
+	fread(&outtext, sizeof(char), sizeof(mytext), stdin);
+	int k = 0;
+	while (k < 1024 && outtext[k] != 0)
+	{
+		printf("the output is %c \n", outtext[k]);
+		k++;
+	}
+	fclose(fd);
+}
