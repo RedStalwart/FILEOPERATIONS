@@ -1,33 +1,31 @@
+// fileoperations.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+#define _CRT_SECURE_NO_WARNINGS
+/* fflush example */
 #include <stdio.h>
+#define BUFFER 1024
+#define FILENAMESIZE 15
 
 int main()
 {
+	char filename[FILENAMESIZE] = "\0";
+	printf("Enter the output file name for not more than 14 characters\n");
+	scanf("%s", filename);
+	printf("\nThe filename is %s \n", filename);
+	printf("Initiating File write, File write will continue until explicity broken pressing CTRL+C");
+	char mytext[BUFFER]; // Alternatively we can use heap memory too
 	FILE* fd = NULL;
-	wchar_t mytext[1024];
-	int i = 0;
-	while (i<1024)
+	while (fread(mytext, sizeof(char), sizeof(mytext), stdin) > 0)
 	{
-		mytext[i] = 0;
-		i++;
-	}
-	fread(&mytext, sizeof(char),sizeof(mytext),stdin);	
-	fd = fopen("inputtext.txt", "wb+");
-	fwrite(&mytext,sizeof(char),sizeof(mytext),fd);
-	fclose(fd);
-	fflush(stdin);		
-	fd = fopen("inputtext.txt", "rb+");
-	wchar_t outtext[1024];
-	while (i<1024)
-	{
-		outtext[i] = 0;
-		i++;
-	}
-	fread(&outtext, sizeof(char), sizeof(mytext), stdin);
-	int k = 0;
-	while (k < 1024 && outtext[k] != 0)
-	{
-		printf("the output is %c \n", outtext[k]);
-		k++;
+		fd = fopen(filename, "ab+");
+		if (fwrite(mytext, sizeof(char), sizeof(mytext), fd) < 0)
+		{
+			printf("Write FAILURE\n");
+			fclose(fd);
+			return 0;
+		}
+		fclose(fd);
 	}
 	fclose(fd);
+	fflush(stdin);
 }
