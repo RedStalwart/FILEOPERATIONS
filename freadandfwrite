@@ -1,3 +1,9 @@
+/********************************************************************
+*   File    : freadandfwrite.c
+*   version : 1.0
+*
+*********************************************************************/
+
 #include <stdio.h>
 #include <string.h>
 #define BUFFER 1048576
@@ -8,6 +14,12 @@ char opfilename[FILENAMESIZE] = "\0";
 
 char defaultfile[20] = "stdinputfile";
 
+/*********************************************************************
+* Description : Read input from a file pointer and writes to out file
+*  Parameter  : FILE* (file pointer)
+*  Output     : generates a new file 
+*               either a stdinputfile or a copied file 
+**********************************************************************/
 void copyfile(FILE* ifptr)
 {
     FILE* fd = NULL;
@@ -39,6 +51,11 @@ void copyfile(FILE* ifptr)
 	fclose(fd);
 	}
 }
+/*********************************************************************
+* Description : Check is file exists
+*  Parameter  : FILE* (file pointer)
+*  Output     : returns 1 if exists else return 0
+***********************************************************************/
 int cfileexists(const char * filename){
     /* try to open file to read */
     FILE *file;
