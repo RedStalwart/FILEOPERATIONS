@@ -1,31 +1,81 @@
-// fileoperations.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-#define _CRT_SECURE_NO_WARNINGS
-/* fflush example */
 #include <stdio.h>
-#define BUFFER 1024
-#define FILENAMESIZE 15
+#include <string.h>
+#define BUFFER 1048576
+#define FILENAMESIZE 255
 
-int main()
+char mytext[BUFFER];
+char opfilename[FILENAMESIZE] = "\0";
+
+char defaultfile[20] = "stdinputfile";
+
+void copyfile(FILE* ifptr)
 {
-	char filename[FILENAMESIZE] = "\0";
-	printf("Enter the output file name for not more than 14 characters\n");
-	scanf("%s", filename);
-	printf("\nThe filename is %s \n", filename);
-	printf("Initiating File write, File write will continue until explicity broken pressing CTRL+C");
-	char mytext[BUFFER]; // Alternatively we can use heap memory too
-	FILE* fd = NULL;
-	while (fread(mytext, sizeof(char), sizeof(mytext), stdin) > 0)
+    FILE* fd = NULL;
+    if(ifptr == NULL)
+    {
+        ifptr = stdin;
+        strcat(opfilename,defaultfile);
+        remove(opfilename);
+        puts("\nTaking input from STDIN (KEYBOARD)\n");
+    }
+    while (fread(mytext, sizeof(char), sizeof(mytext), ifptr) > 0)
+   {
+	fd = fopen(opfilename, "ab+");
+	if (ferror(ifptr))
+        {
+            printf("Error occured while reading file.");
+            return; // Or what ever return value you use to indicate an error
+        }
+	if(feof(ifptr))
+        {
+            puts("\nEOF detected - Writing Completed\n");
+        }
+	if (fwrite(mytext, sizeof(char), sizeof(mytext), fd) < 0)
 	{
-		fd = fopen(filename, "ab+");
-		if (fwrite(mytext, sizeof(char), sizeof(mytext), fd) < 0)
-		{
-			printf("Write FAILURE\n");
-			fclose(fd);
-			return 0;
-		}
-		fclose(fd);
+            puts("Write FAILURE\n");
+	    fclose(fd);
+	     return;
 	}
 	fclose(fd);
-	fflush(stdin);
+	}
 }
+int cfileexists(const char * filename){
+    /* try to open file to read */
+    FILE *file;
+    if (file = fopen(filename, "r")){
+        fclose(file);
+        return 1;
+    }
+    return 0;
+}
+int main()
+{
+    FILE* iptr = NULL;
+    char option[3] = "\0";
+    puts("Do you  want to create a copy of existing file ?\nPress 'y' for yes else  press any key to create a new file and write to it\n");
+    scanf("%c", option);
+    if(option[0] == 'y' || option[0]=='Y')
+    {
+        char inputfile[FILENAMESIZE] = "\0";
+        puts("Enter the filename\n");
+        scanf("%s",inputfile);
+        iptr = fopen(inputfile,"rb");
+        if(iptr == NULL)
+        {
+            puts("FILEOPEN FAILURE returning");
+            return 0;
+        }
+        strcat(opfilename,"copy_");
+        strcat(opfilename,inputfile);
+        int a = 0;
+        while(cfileexists(opfilename))  /*create new one if a file already exists*/
+        {
+            a++;
+            snprintf ( opfilename, FILENAMESIZE, "copy_%d_%s",a,inputfile );
+        }
+    }
+    copyfile(iptr);
+    fflush(iptr);
+    return 0;
+}
+
